@@ -34,15 +34,16 @@
       integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
       crossorigin="anonymous"></script>
     <script>
-      // 87 83 65 68 
       var isUpdating = false
       var config = {
         width: 480,
         height: 480,
         size: 30,
         step: 30,
-        bullet: { size: 2 },
-        enemy: { size: { width: 60, height: 30 } }
+        bullet: { size: 2, range: 200, speed: 1, damage: 1},
+        enemy: { size: { width: 60, height: 30 } },
+        attackTypes: ['gun'],
+        gun: { shotsFired: 30 }
       }
 
       var state = {
@@ -50,6 +51,7 @@
         y: config.height / 2,
         enemy: { elem: $('<div class="enemy">'), hp: 30, x: config.width / 2, y: 100 },
         bullets: [],
+        attackType: config.attackTypes[0],
       }
       var player = $('#player')
       var stage = $('#main')
@@ -76,7 +78,7 @@
         createEnemy()
       }
 
-      var isColided = function (x, y) {
+      var isCollided = function (x, y) {
         return (
           (x + config.size) > config.width || 
           x < 0 ||
@@ -88,7 +90,7 @@
       var move  = function(direction){
         nextX = state.x + config.step * direction[0]
         nextY = state.y + config.step * direction[1]
-        if (isColided(nextX, nextY)) return;
+        if (isCollided(nextX, nextY)) return;
 
         state.x = nextX
         state.y = nextY
@@ -97,7 +99,6 @@
       var shoot = function(){
         createBullet()
       }
-
 
       function createBullet () {
         var x = state.x + config.size/ 2
@@ -110,32 +111,25 @@
             left: x
           })
           .appendTo(stage);
-
         element.from = [x, y]
         element.x = x
         element.y = y
-        element.timer = setInterval(function(){flying(element,null)}, 30)
-
+        element.timer = setInterval(function(){ flying(element,null) }, 17)
         state.bullets.push(element)
-
       }
 
       var update = function () {
         if (!isUpdating) return;
-
         requestAnimationFrame (function () {
           player.css({
             top: state.y,
             left: state.x
           })
-          checkBullets()
           updateEnemy()
-
+          updateBullet()
           update()
         })
       }
-
-
 
       init()
 
@@ -144,45 +138,49 @@
         click: handleClick
       }
 
-
+      var ATTACK_EVENTS = {
+        gun: shoot
+      }
 
       $(document).on('keydown click', function(e){
-        
         HANDLE_EVENTS[e.type](e)
-
         update()
       })
 
       function handleKeydown (e) {
-          if (moving[e.which]) {
-              move(moving[e.which])
+        if (moving[e.which]) {
+          move(moving[e.which])
         }
       }
 
       function handleClick (e) {
-        shoot()
+        ATTACK_EVENTS[state.attackType]()
       }
 
       function flying(bullet, direction ) {
-        var nextY = bullet.y - 1
+        var nextY = bullet.y - config.bullet.speed
         var nextX = bullet.x
         var distance = Math.abs(bullet.y - bullet.from[1])
-        if (distance > 100) {
+        if (distance > config.bullet.range) {
           deleteBullet(bullet)
           return
         }
-        bullet.css({top: nextY, left: nextX})
         bullet.x = nextX
         bullet.y = nextY
+        checkBullets(bullet)
       }
 
-      function checkBullets(){
+      function updateBullet(){
         state.bullets.forEach(function(bullet) {
-          if (doesBulletHitEnemy(bullet.x, bullet.y) && state.enemy.hp > 0) {
-            damageEnemy()
-            deleteBullet(bullet)
-          }
+          bullet.css({top: bullet.y, left: bullet.x})
         })
+      }
+
+      function checkBullets(bullet){
+        if (doesBulletHitEnemy(bullet.x, bullet.y) && state.enemy.hp > 0) {
+          damageEnemy()
+          deleteBullet(bullet)
+        }
       }
 
       function createEnemy () {
@@ -196,7 +194,7 @@
 
       function damageEnemy () {
         if (state.enemy.hp <= 0) return
-        state.enemy.hp -=1
+        state.enemy.hp -= config.bullet.damage
       }
 
       function updateEnemy () {
@@ -220,7 +218,6 @@
 
         return false
       }
-
 
       function deleteBullet (bullet) {
         bullet.remove();
