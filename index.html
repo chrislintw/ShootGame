@@ -1,0 +1,233 @@
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Test</title>
+    <style>
+      body{
+        padding: 0;
+      }
+
+      #main {
+        border: blue 5px solid; 
+        position: relative;
+      }
+      #player {
+        background-color: red;
+        position: absolute;
+      }
+      .bullet {
+        background-color: black;
+        position: absolute;        
+      }
+      .enemy{
+        background-color: green;
+        position: absolute;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="main">
+      <div id="player"></div>
+    </div>
+    <script
+      src="http://code.jquery.com/jquery-3.3.1.min.js"
+      integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+      crossorigin="anonymous"></script>
+    <script>
+      // 87 83 65 68 
+      var isUpdating = false
+      var config = {
+        width: 480,
+        height: 480,
+        size: 30,
+        step: 30,
+        bullet: { size: 2 },
+        enemy: { size: { width: 60, height: 30 } }
+      }
+
+      var state = {
+        x: config.width / 2,
+        y: config.height / 2,
+        enemy: { elem: $('<div class="enemy">'), hp: 30, x: config.width / 2, y: 100 },
+        bullets: [],
+      }
+      var player = $('#player')
+      var stage = $('#main')
+
+      var moving = {
+        87: [0, -1],
+        83: [0, 1],
+        65: [-1, 0],
+        68: [1, 0]
+      }
+
+      var init = function () {
+        isUpdating = true
+        stage.css({
+          width: config.width,
+          height: config.height
+        })
+        player.css({
+          width: config.size,
+          height: config.size,
+          top: state.y,
+          left: state.x
+        })
+        createEnemy()
+      }
+
+      var isColided = function (x, y) {
+        return (
+          (x + config.size) > config.width || 
+          x < 0 ||
+          (y + config.size) > config.height || 
+          y < 0
+        )
+      }
+
+      var move  = function(direction){
+        nextX = state.x + config.step * direction[0]
+        nextY = state.y + config.step * direction[1]
+        if (isColided(nextX, nextY)) return;
+
+        state.x = nextX
+        state.y = nextY
+      };
+
+      var shoot = function(){
+        createBullet()
+      }
+
+
+      function createBullet () {
+        var x = state.x + config.size/ 2
+        var y = state.y
+        var element = $('<div class="bullet">')
+          .css({
+            width: config.bullet.size,
+            height: config.bullet.size,
+            top: y,
+            left: x
+          })
+          .appendTo(stage);
+
+        element.from = [x, y]
+        element.x = x
+        element.y = y
+        element.timer = setInterval(function(){flying(element,null)}, 30)
+
+        state.bullets.push(element)
+
+      }
+
+      var update = function () {
+        if (!isUpdating) return;
+
+        requestAnimationFrame (function () {
+          player.css({
+            top: state.y,
+            left: state.x
+          })
+          checkBullets()
+          updateEnemy()
+
+          update()
+        })
+      }
+
+
+
+      init()
+
+      var HANDLE_EVENTS = {
+        keydown: handleKeydown,
+        click: handleClick
+      }
+
+
+
+      $(document).on('keydown click', function(e){
+        
+        HANDLE_EVENTS[e.type](e)
+
+        update()
+      })
+
+      function handleKeydown (e) {
+          if (moving[e.which]) {
+              move(moving[e.which])
+        }
+      }
+
+      function handleClick (e) {
+        shoot()
+      }
+
+      function flying(bullet, direction ) {
+        var nextY = bullet.y - 1
+        var nextX = bullet.x
+        var distance = Math.abs(bullet.y - bullet.from[1])
+        if (distance > 100) {
+          deleteBullet(bullet)
+          return
+        }
+        bullet.css({top: nextY, left: nextX})
+        bullet.x = nextX
+        bullet.y = nextY
+      }
+
+      function checkBullets(){
+        state.bullets.forEach(function(bullet) {
+          if (doesBulletHitEnemy(bullet.x, bullet.y) && state.enemy.hp > 0) {
+            damageEnemy()
+            deleteBullet(bullet)
+          }
+        })
+      }
+
+      function createEnemy () {
+        var elem = state.enemy.elem.css({
+          top: state.enemy.y,
+          left: state.enemy.x, 
+          width: config.enemy.size.width,
+          height: config.enemy.size.height
+        }).appendTo(stage)
+      }
+
+      function damageEnemy () {
+        if (state.enemy.hp <= 0) return
+        state.enemy.hp -=1
+      }
+
+      function updateEnemy () {
+        var enemy = state.enemy
+        var elem = enemy.elem
+        elem.css({ opacity: enemy.hp / 30 })
+      }
+
+      function doesBulletHitEnemy(x, y) {
+        var enemy = state.enemy
+        var enemyWidth = config.enemy.size.width
+        var enemyHeight = config.enemy.size.height
+        if (
+          x <= (enemy.x + enemyWidth) && 
+          x >= enemy.x && 
+          y <= (enemy.y + enemyHeight) && 
+          y >= enemy.y
+        ) { 
+          return true 
+        }
+
+        return false
+      }
+
+
+      function deleteBullet (bullet) {
+        bullet.remove();
+        state.bullets.splice(state.bullets.indexOf(bullet), 1)
+        clearInterval(bullet.timer)
+      }
+
+    </script>
+  </body>
+</html>
