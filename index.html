@@ -96,11 +96,12 @@
         state.y = nextY
       };
 
-      var shoot = function(){
-        createBullet()
+      var shoot = function(e){
+        var mouse_coordinate= { x: e.pageX, y: e.pageY} 
+        createBullet(mouse_coordinate)
       }
 
-      function createBullet () {
+      function createBullet (mouse_coordinate) {
         var x = state.x + config.size/ 2
         var y = state.y
         var element = $('<div class="bullet">')
@@ -114,7 +115,9 @@
         element.from = [x, y]
         element.x = x
         element.y = y
-        element.timer = setInterval(function(){ flying(element,null) }, 17)
+
+        element.angle = getAngle(element, mouse_coordinate)
+        element.timer = setInterval(function(){ flying(element) }, 17)
         state.bullets.push(element)
       }
 
@@ -154,19 +157,20 @@
       }
 
       function handleClick (e) {
-        ATTACK_EVENTS[state.attackType]()
+        ATTACK_EVENTS[state.attackType](e)
+        
       }
 
-      function flying(bullet, direction ) {
-        var nextY = bullet.y - config.bullet.speed
-        var nextX = bullet.x
+      function flying(bullet) {
+        var v = calculateXY(bullet.x, bullet.y, bullet.angle)
+        bullet.x += v[0]
+        bullet.y -= v[1]
         var distance = Math.abs(bullet.y - bullet.from[1])
         if (distance > config.bullet.range) {
           deleteBullet(bullet)
           return
         }
-        bullet.x = nextX
-        bullet.y = nextY
+
         checkBullets(bullet)
       }
 
@@ -225,6 +229,19 @@
         clearInterval(bullet.timer)
       }
 
+      function getAngle(soucePoint,targetPoint)
+      {
+        var res=(Math.atan2(targetPoint.y-soucePoint.y,targetPoint.x-soucePoint.x)) / Math.PI * 180.0;
+        var angle = (res>=0 && res <=180)?res+=90:((res<0 && res>=-90)? res+=90: res+=450);
+        console.log(angle)
+        return angle
+      }
+
+      function calculateXY(x, y , angle){
+        var vx = Math.cos(angle) * config.bullet.speed
+        var vy = Math.sin(angle) * config.bullet.speed
+        return [vx, vy]
+      }
     </script>
   </body>
 </html>
