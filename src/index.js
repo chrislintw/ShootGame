@@ -1,3 +1,4 @@
+/* global $ */
 import './index.sass'
 
 let isUpdating = false
