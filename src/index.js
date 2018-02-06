@@ -1,6 +1,6 @@
 import './index.sass'
 import Enemy from './enemy'
-import { getSize, drawCenterGuideLine } from './utils/canvas'
+import { getSize, drawCenterGuideLine, clean } from './utils/canvas'
 
 window.__ = {
   debug: false,
@@ -14,9 +14,11 @@ gameLoop(state)
 function gameLoop (state) {
   if (!window.__.isUpdating) return
   window.requestAnimationFrame(function () {
+    clean(state.canvas.main)
+
     state.enemy.draw(state.canvas.main)
 
-    drawCenterGuideLine(state.canvas.main)
+    _debugMode(state)
     gameLoop(state)
   })
 }
@@ -48,4 +50,11 @@ function gameInit (ctx) {
 function createEnemy (state) {
   const { width, height } = getSize(state.canvas.main)
   state.enemy = new Enemy({ x: width / 2, y: height / 2 })
+}
+
+
+function _debugMode(state) {
+  if (!window.__.debug) return
+
+  drawCenterGuideLine(state.canvas.main)
 }

@@ -6,8 +6,6 @@ export function getSize (ctx) {
 }
 
 export function drawCenterGuideLine (ctx) {
-  if (!window.__.debug) return
-
   const { width, height } = getSize(ctx)
   const center = { x: width / 2, y: height / 2 }
   const length = 120
@@ -20,4 +18,9 @@ export function drawCenterGuideLine (ctx) {
   ctx.moveTo(center.x, center.y - length / 2)
   ctx.lineTo(center.x, center.y + length / 2)
   ctx.stroke()
+}
+
+export function clean (ctx) {
+  const { width, height } = getSize(ctx)
+  ctx.clearRect(0, 0, width, height)
 }
