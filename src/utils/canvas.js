@@ -1,13 +1,22 @@
 export function getSize (ctx) {
+  const canvasWidth = ctx.canvas.width
+  const canvasHeight = ctx.canvas.height
+  const styleWidth = parseInt(ctx.canvas.style.width)
+  const styleHeight = parseInt(ctx.canvas.style.height)
+
   return {
-    width: ctx.canvas.width,
-    height: ctx.canvas.height
+    canvasWidth,
+    canvasHeight,
+    styleWidth,
+    styleHeight,
+    widthRatio: canvasWidth / styleWidth,
+    heightRatio: canvasHeight / styleHeight
   }
 }
 
 export function drawCenterGuideLine (ctx) {
-  const { width, height } = getSize(ctx)
-  const center = { x: width / 2, y: height / 2 }
+  const { canvasWidth, canvasHeight } = getSize(ctx)
+  const center = { x: canvasWidth / 2, y: canvasHeight / 2 }
   const length = 120
 
   ctx.strokeStyle = '#777'
@@ -22,8 +31,8 @@ export function drawCenterGuideLine (ctx) {
 }
 
 export function clean (ctx) {
-  const { width, height } = getSize(ctx)
-  ctx.clearRect(0, 0, width, height)
+  const { canvasWidth, canvasHeight } = getSize(ctx)
+  ctx.clearRect(0, 0, canvasWidth, canvasHeight)
 }
 
 export function drawFPS (ctx, fps) {

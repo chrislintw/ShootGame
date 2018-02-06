@@ -12,8 +12,8 @@ const ctx = setupCanvas()
 const game = new Game({}, ctx)
 
 startGameLoop(
-  function update (timestep) {
-
+  function update (delta) {
+    game.update(delta)
   },
   function draw (fps) {
     clean(ctx)
