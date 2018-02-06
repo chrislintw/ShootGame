@@ -24,3 +24,9 @@ export function clean (ctx) {
   const { width, height } = getSize(ctx)
   ctx.clearRect(0, 0, width, height)
 }
+
+export function drawFPS (ctx, fps) {
+  ctx.fillStyle = '#333'
+  ctx.font = '20px san-serif'
+  ctx.fillText('FPS ' + Math.round(fps), 20, 30)
+}
