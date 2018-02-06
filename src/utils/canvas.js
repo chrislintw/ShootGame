@@ -11,6 +11,7 @@ export function drawCenterGuideLine (ctx) {
   const length = 120
 
   ctx.strokeStyle = '#777'
+  ctx.lineWidth = 1
   ctx.beginPath()
   ctx.moveTo(center.x - length / 2, center.y)
   ctx.lineTo(center.x + length / 2, center.y)
