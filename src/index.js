@@ -1,13 +1,51 @@
 import './index.sass'
-const canvas = document.getElementById('canvas')
-canvas.style.width = window.innerWidth * 0.8
-canvas.style.height = window.innerHeight * 0.8
+import Enemy from './enemy'
+import { getSize, drawCenterGuideLine } from './utils/canvas'
 
-canvas.width = parseInt(canvas.style.width) * 2
-canvas.height = parseInt(canvas.style.height) * 2
+window.__ = {
+  debug: false,
+  isUpdating: true
+}
 
+const ctx = setupCanvas()
+const state = gameInit(ctx)
+gameLoop(state)
 
-// test canvas
-const ctx = canvas.getContext('2d')
-ctx.fillStyle = 'green'
-ctx.fillRect(0, 0, 500, 500)
+function gameLoop (state) {
+  if (!window.__.isUpdating) return
+  window.requestAnimationFrame(function () {
+    state.enemy.draw(state.canvas.main)
+
+    drawCenterGuideLine(state.canvas.main)
+    gameLoop(state)
+  })
+}
+
+function setupCanvas () {
+  const canvas = document.getElementById('canvas')
+  canvas.style.width = window.innerWidth * 0.8
+  canvas.style.height = window.innerHeight * 0.8
+
+  // TODO: fallbacks for non-retina screen
+  canvas.width = parseInt(canvas.style.width) * 2
+  canvas.height = parseInt(canvas.style.height) * 2
+
+  return canvas.getContext('2d')
+}
+
+function gameInit (ctx) {
+  const state = {
+    canvas: {
+      main: ctx
+    }
+  }
+
+  createEnemy(state)
+
+  return state
+}
+
+function createEnemy (state) {
+  const { width, height } = getSize(state.canvas.main)
+  state.enemy = new Enemy({ x: width / 2, y: height / 2 })
+}
