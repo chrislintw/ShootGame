@@ -1,5 +1,7 @@
-import { getSize } from './utils/canvas'
 import fromEvent from 'xstream/extra/fromEvent'
+
+import Rect from './shapes/rect'
+import { getSize } from './utils/canvas'
 import Enemy from './enemy'
 import Player from './player'
 import Bullet from './bullet'
@@ -25,8 +27,9 @@ class Game {
     this.movePlayer = this.movePlayer.bind(this)
     this.createBullet = this.createBullet.bind(this)
 
-    this.createEnemy(state)
-    this.createPlayer(state)
+    this.createGameArea()
+    this.createEnemy()
+    this.createPlayer()
     this.bindEvents()
   }
 
@@ -43,7 +46,7 @@ class Game {
   }
 
   update (delta) {
-    this.state.bullets.map(bullet => bullet.update(delta))
+    this.updateBullets(delta)
   }
 
   draw () {
@@ -52,14 +55,19 @@ class Game {
     this.state.bullets.map(bullet => bullet.draw(this.ctx))
   }
 
-  createEnemy (state) {
-    const { canvasWidth, canvasHeight } = this.size
-    state.enemy = new Enemy({ x: canvasWidth / 2, y: canvasHeight / 2 })
+  createGameArea () {
+    const { canvasWidth, canvasHeight } = getSize(this.ctx)
+    this.gameArea = Rect.fromLeftTop({ x: 0, y: 0, width: canvasWidth, height: canvasHeight })
   }
 
-  createPlayer (state) {
+  createEnemy () {
     const { canvasWidth, canvasHeight } = this.size
-    state.player = new Player({ x: canvasWidth / 2, y: canvasHeight * 0.9 })
+    this.state.enemy = new Enemy({ x: canvasWidth / 2, y: canvasHeight / 2 })
+  }
+
+  createPlayer () {
+    const { canvasWidth, canvasHeight } = this.size
+    this.state.player = new Player({ x: canvasWidth / 2, y: canvasHeight * 0.9 })
   }
 
   createBullet (event) {
@@ -72,6 +80,14 @@ class Game {
 
   movePlayer ({ x, y }) {
     this.state.player.move({ unitX: x, unitY: y })
+  }
+
+  updateBullets (delta) {
+    this.state.bullets =
+      this.state.bullets.filter(bullet => {
+        bullet.update(delta)
+        return this.gameArea.doesContain(bullet)
+      })
   }
 }
 

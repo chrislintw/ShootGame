@@ -1,18 +1,27 @@
-class Bullet {
+import _ from 'lodash'
+import Rect from './shapes/rect'
+
+class Bullet extends Rect {
   constructor ({
     toward,
-    x = 0,
-    y = 0,
-    width = Bullet.size,
-    height = Bullet.size,
+    gameArea,
     flyingDistance = 0
   }) {
-    this.direction = this.getDirection({ x, y }, toward)
-    this.x = x
-    this.y = y
-    this.height = height
-    this.width = width
+    super(...arguments)
+
+    this._default()
+
+    this.direction = this.getDirection({ x: this.x, y: this.y }, toward)
     this.flyingDistance = flyingDistance
+  }
+
+  _default () {
+    _.defaults(this, {
+      x: 0,
+      y: 0,
+      width: Bullet.size,
+      height: Bullet.size
+    })
   }
 
   update (delta) {

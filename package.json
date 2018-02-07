@@ -25,6 +25,7 @@
     "webpack-dev-server": "^2.11.1"
   },
   "dependencies": {
+    "lodash": "^4.17.5",
     "xstream": "^11.2.0"
   },
   "ava": {
