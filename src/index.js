@@ -4,8 +4,7 @@ import { drawCenterGuideLine, clean, drawFPS } from './utils/canvas'
 import Game from './game'
 
 window.__ = {
-  debug: true,
-  isUpdating: true
+  debug: false
 }
 
 const ctx = setupCanvas()

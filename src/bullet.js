@@ -12,7 +12,6 @@ class Bullet extends Rect {
     this._default()
 
     this.direction = this.getDirection({ x: this.x, y: this.y }, toward)
-    this.flyingDistance = flyingDistance
   }
 
   _default () {
@@ -43,7 +42,7 @@ Object.assign(Bullet, {
   size: 4,
   maxDistance: 200,
   speed: 0.1,
-  damage: 1
+  damage: 5
 })
 
 export default Bullet

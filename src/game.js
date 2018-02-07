@@ -86,8 +86,19 @@ class Game {
     this.state.bullets =
       this.state.bullets.filter(bullet => {
         bullet.update(delta)
-        return this.gameArea.doesContain(bullet)
+        const doesHitTarget = this.checkBulletTargets(bullet)
+        return this.gameArea.doesContain(bullet) && !doesHitTarget
       })
+  }
+
+  checkBulletTargets (bullet) {
+    const doesHitTarget = this.state.enemy.isAlive() && this.state.enemy.doesContain(bullet)
+
+    if (doesHitTarget) {
+      this.state.enemy.getDamaged(bullet.constructor.damage)
+    }
+
+    return doesHitTarget
   }
 }
 
