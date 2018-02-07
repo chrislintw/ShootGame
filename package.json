@@ -5,7 +5,8 @@
   "repository": "git@github.com:letthebulletfly/ShootGame.git",
   "license": "MIT",
   "scripts": {
-    "start": "webpack-dev-server --open"
+    "start": "webpack-dev-server --open",
+    "test": "ava"
   },
   "devDependencies": {
     "ava": "^0.25.0",
