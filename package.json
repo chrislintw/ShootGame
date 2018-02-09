@@ -10,7 +10,7 @@
   "scripts": {
     "start": "webpack-dev-server --open",
     "build": "webpack",
-    "deploy": "gh-pages -d dist",
+    "deploy": "scripts/deploy",
     "test": "ava"
   },
   "devDependencies": {

@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+./node_modules/.bin/gh-pages \
+  --silent \
+  --repo https://$GITHUB_TOKEN@github.com/letthebulletfly/ShootGame.git \
+  --dist dist
