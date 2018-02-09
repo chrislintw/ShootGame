@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "main": "index.js",
   "engines": {
-    "node": "6.x"
+    "node": ">=4.0.0"
   },
   "repository": "git@github.com:letthebulletfly/ShootGame.git",
   "license": "MIT",
@@ -20,6 +20,7 @@
     "babel-preset-env": "^1.6.1",
     "babel-register": "^6.26.0",
     "clean-webpack-plugin": "^0.1.18",
+    "concurrently": "^3.5.1",
     "css-loader": "^0.28.9",
     "gh-pages": "^1.1.0",
     "html-webpack-plugin": "^2.30.1",
