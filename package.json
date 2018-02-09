@@ -2,6 +2,9 @@
   "name": "ShootGame",
   "version": "0.0.1",
   "main": "index.js",
+  "engines": {
+    "node": "6.x"
+  },
   "repository": "git@github.com:letthebulletfly/ShootGame.git",
   "license": "MIT",
   "scripts": {
