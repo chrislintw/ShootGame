@@ -7,12 +7,15 @@
   "scripts": {
     "start": "webpack-dev-server --open",
     "build": "webpack",
-    "deploy": "gh-pages -d dist"
+    "deploy": "gh-pages -d dist",
+    "test": "ava"
   },
   "devDependencies": {
+    "ava": "^0.25.0",
     "babel-core": "^6.26.0",
     "babel-loader": "^7.1.2",
     "babel-preset-env": "^1.6.1",
+    "babel-register": "^6.26.0",
     "clean-webpack-plugin": "^0.1.18",
     "css-loader": "^0.28.9",
     "gh-pages": "^1.1.0",
@@ -23,5 +26,18 @@
     "style-loader": "^0.20.1",
     "webpack": "^3.10.0",
     "webpack-dev-server": "^2.11.1"
+  },
+  "dependencies": {
+    "lodash": "^4.17.5",
+    "xstream": "^11.2.0"
+  },
+  "ava": {
+    "concurrency": 5,
+    "failFast": true,
+    "powerAssert": true,
+    "require": [
+      "babel-register"
+    ],
+    "babel": "inherit"
   }
 }
