@@ -40,3 +40,10 @@ export function drawFPS (ctx, fps) {
   ctx.font = '20px san-serif'
   ctx.fillText('FPS ' + Math.round(fps), 20, 30)
 }
+
+// the canvas settings inside fn won't affect outside world
+export function zone (ctx, fn) {
+  ctx.save()
+  fn()
+  ctx.restore()
+}
