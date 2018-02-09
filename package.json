@@ -8,10 +8,12 @@
   "repository": "git@github.com:letthebulletfly/ShootGame.git",
   "license": "MIT",
   "scripts": {
-    "start": "webpack-dev-server --open",
+    "client": "webpack-dev-server --open",
     "build": "webpack",
     "deploy": "scripts/deploy",
-    "test": "ava"
+    "test": "ava",
+    "server": "node ./server/index.js",
+    "start": "concurrently \"yarn run server\" \"yarn run client\""
   },
   "devDependencies": {
     "ava": "^0.25.0",

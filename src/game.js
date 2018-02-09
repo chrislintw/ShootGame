@@ -1,4 +1,5 @@
 import fromEvent from 'xstream/extra/fromEvent'
+import _ from 'lodash'
 
 import Rect from './shapes/rect'
 import { getSize } from './utils/canvas'
@@ -22,15 +23,47 @@ class Game {
 
     this.state = state
     this.state.bullets = []
+    this.state.players = []
     this.size = getSize(ctx)
 
     this.movePlayer = this.movePlayer.bind(this)
     this.createBullet = this.createBullet.bind(this)
+    this.createPlayer = this.createPlayer.bind(this)
 
     this.createGameArea()
     this.createEnemy()
-    this.createPlayer()
+
     this.bindEvents()
+
+    const self = this
+    const socket = io()
+
+    this.socket = socket
+
+    socket.on('connect', function () {
+      this.connectionId = socket.id
+    })
+
+    socket.on('init', function ({ players }) {
+      players.forEach(function (playerInfo) {
+        const player = self.createPlayer(playerInfo)
+        if (player.id === self.connectionId) {
+          self.myPlayer = player
+        }
+      })
+    })
+
+    socket.on('playerCreated', function (player) {
+      self.createPlayer(player)
+    })
+
+    socket.on('playerMoved', function (moveTo) {
+      self.onPlayerMoved(moveTo)
+    })
+
+    socket.on('playerLeaved', function (player) {
+      self.removePlayer(player)
+    })
   }
 
   bindEvents () {
@@ -50,8 +83,8 @@ class Game {
   }
 
   draw () {
-    this.state.enemy.draw(this.ctx)
-    this.state.player.draw(this.ctx)
+    if (this.state.enemy) { this.state.enemy.draw(this.ctx) }
+    this.state.players.map(player => player.draw(this.ctx))
     this.state.bullets.map(bullet => bullet.draw(this.ctx))
   }
 
@@ -65,9 +98,15 @@ class Game {
     this.state.enemy = new Enemy({ x: canvasWidth / 2, y: canvasHeight / 2 })
   }
 
-  createPlayer () {
-    const { canvasWidth, canvasHeight } = this.size
-    this.state.player = new Player({ x: canvasWidth / 2, y: canvasHeight * 0.9 })
+  createPlayer ({ x, y, id, name, color }) {
+    const player = new Player({ x, y, name, color, id })
+    this.state.players.push(player)
+
+    return player
+  }
+
+  removePlayer ({ id }) {
+    _.remove(this.state.players, player => player.id === id)
   }
 
   createBullet (event) {
@@ -78,8 +117,12 @@ class Game {
     }))
   }
 
-  movePlayer ({ x, y }) {
-    this.state.player.move({ unitX: x, unitY: y })
+  movePlayer (to) {
+    this.socket.emit('playerMoved', to)
+  }
+
+  onPlayerMoved ({ id, x, y }) {
+    _.find(this.state.players, player => player.id === id).move({ unitX: x, unitY: y })
   }
 
   updateBullets (delta) {

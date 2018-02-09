@@ -37,10 +37,10 @@ module.exports = {
     ]
   },
   devServer: {
-    contentBase: './dist'
-  },
-  proxy: {
-    '/api': 'http://localhost:3001'
+    contentBase: './dist',
+    proxy: {
+      '/': 'http://localhost:3001'
+    }
   },
   devtool: 'inline-source-map'
 }

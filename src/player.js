@@ -7,19 +7,24 @@ class Player {
     y = 0,
     width = Player.size.width,
     height = Player.size.height,
-    step = Player.step
+    step = Player.step,
+    color = Player.color,
+    id
   }) {
+    this.id = id
     this.name = name
     this.x = x
     this.y = y
     this.width = width
     this.height = height
     this.step = step
+
+    this.color = color
   }
 
   draw (ctx) {
     zone(ctx, () => {
-      ctx.fillStyle = '#facf15'
+      ctx.fillStyle = this.color
       ctx.strokeStyle = '#333'
       ctx.lineWidth = 4
 
@@ -49,7 +54,8 @@ Object.assign(Player, {
     width: 20,
     height: 20
   },
-  step: 20
+  step: 20,
+  color: '#facf15'
 })
 
 export default Player
