@@ -6,16 +6,15 @@ const port = process.env.PORT || 3001
 
 const colors = ['#9ABC8A', '#EDC951']
 const players = []
-
 io.on('connection', function (socket) {
   console.log('connected: ' + socket.id)
 
   socket.on('playerMoved', (moveTo) => {
     const player = _.find(players, player => player.id === socket.id)
-    socket.emit('playerMoved', { id: socket.id, x: moveTo.x, y: moveTo.y })
-
-    player.x = moveTo.x
-    player.y = moveTo.y
+    io.emit('playerMoved', { id: socket.id, x: moveTo.x, y: moveTo.y })
+    console.log(player)
+    player.x += moveTo.x * 20
+    player.y += moveTo.y * 20
   })
 
   const currentPlayer = createPlayer(socket.id)

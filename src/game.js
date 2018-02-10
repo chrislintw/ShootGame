@@ -20,16 +20,14 @@ class Game {
     ctx
   ) {
     this.ctx = ctx
-
+    this.now = Date.now()
     this.state = state
     this.state.bullets = []
     this.state.players = []
     this.size = getSize(ctx)
-
     this.movePlayer = this.movePlayer.bind(this)
     this.createBullet = this.createBullet.bind(this)
     this.createPlayer = this.createPlayer.bind(this)
-
     this.createGameArea()
     this.createEnemy()
 
@@ -37,6 +35,7 @@ class Game {
 
     const self = this
     const socket = io()
+    
 
     this.socket = socket
 
@@ -58,6 +57,7 @@ class Game {
     })
 
     socket.on('playerMoved', function (moveTo) {
+      console.log(Date.now() - self.now)
       self.onPlayerMoved(moveTo)
     })
 
@@ -118,6 +118,7 @@ class Game {
   }
 
   movePlayer (to) {
+    this.now = Date.now()
     this.socket.emit('playerMoved', to)
   }
 
