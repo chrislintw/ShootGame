@@ -47,3 +47,8 @@ export function zone (ctx, fn) {
   fn()
   ctx.restore()
 }
+
+export function screenCenterMode (ctx) {
+  const { canvasWidth, canvasHeight } = getSize(ctx)
+  ctx.translate(canvasWidth / 2, canvasHeight / 2)
+}

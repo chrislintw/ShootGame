@@ -1,4 +1,4 @@
-import { zone } from './utils/canvas'
+import { zone, screenCenterMode } from './utils/canvas'
 import { simpleID } from './utils/random'
 
 class Player {
@@ -19,12 +19,16 @@ class Player {
     this.width = width
     this.height = height
     this.step = step
+    this.color = color
   }
 
-  draw (ctx) {
+  draw (ctx, playerID) {
     zone(ctx, () => {
+      screenCenterMode(ctx)
+
       ctx.fillStyle = this.color
-      ctx.strokeStyle = '#333'
+
+      ctx.strokeStyle = (this.id === playerID) ? '#fec526' : '#333'
       ctx.lineWidth = 4
 
       ctx.fillRect(this.x - this.width / 2, this.y - this.height / 2, this.width, this.height)
@@ -45,6 +49,11 @@ class Player {
   move ({ unitX, unitY }) {
     this.x += unitX * this.step
     this.y += unitY * this.step
+  }
+
+  set ({ x, y }) {
+    this.x = x
+    this.y = y
   }
 }
 
