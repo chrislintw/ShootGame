@@ -14,14 +14,11 @@ const KEY_MOVING = {
 }
 
 class Game {
-  constructor (
-    state = {},
-    ctx
-  ) {
+  constructor (ctx) {
     this.ctx = ctx
 
-    this.state = state
-    this.state.bullets = []
+    this.bullets = []
+    this.players = []
     this.size = getSize(ctx)
 
     this.movePlayer = this.movePlayer.bind(this)
@@ -50,9 +47,9 @@ class Game {
   }
 
   draw () {
-    this.state.enemy.draw(this.ctx)
-    this.state.player.draw(this.ctx)
-    this.state.bullets.map(bullet => bullet.draw(this.ctx))
+    this.enemy.draw(this.ctx)
+    this.player.draw(this.ctx)
+    this.bullets.map(bullet => bullet.draw(this.ctx))
   }
 
   createGameArea () {
@@ -62,29 +59,29 @@ class Game {
 
   createEnemy () {
     const { canvasWidth, canvasHeight } = this.size
-    this.state.enemy = new Enemy({ x: canvasWidth / 2, y: canvasHeight / 2 })
+    this.enemy = new Enemy({ x: canvasWidth / 2, y: canvasHeight / 2 })
   }
 
   createPlayer () {
     const { canvasWidth, canvasHeight } = this.size
-    this.state.player = new Player({ x: canvasWidth / 2, y: canvasHeight * 0.9 })
+    this.player = new Player({ x: canvasWidth / 2, y: canvasHeight * 0.9 })
   }
 
   createBullet (event) {
-    this.state.bullets.push(new Bullet({
-      x: this.state.player.x,
-      y: this.state.player.y,
+    this.bullets.push(new Bullet({
+      x: this.player.x,
+      y: this.player.y,
       toward: event
     }))
   }
 
   movePlayer ({ x, y }) {
-    this.state.player.move({ unitX: x, unitY: y })
+    this.player.move({ unitX: x, unitY: y })
   }
 
   updateBullets (delta) {
-    this.state.bullets =
-      this.state.bullets.filter(bullet => {
+    this.bullets =
+      this.bullets.filter(bullet => {
         bullet.update(delta)
         const doesHitTarget = this.checkBulletTargets(bullet)
         return this.gameArea.doesContain(bullet) && !doesHitTarget
@@ -92,10 +89,10 @@ class Game {
   }
 
   checkBulletTargets (bullet) {
-    const doesHitTarget = this.state.enemy.isAlive() && this.state.enemy.doesContain(bullet)
+    const doesHitTarget = this.enemy.isAlive() && this.enemy.doesContain(bullet)
 
     if (doesHitTarget) {
-      this.state.enemy.getDamaged(bullet.constructor.damage)
+      this.enemy.getDamaged(bullet.constructor.damage)
     }
 
     return doesHitTarget

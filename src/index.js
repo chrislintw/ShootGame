@@ -8,7 +8,7 @@ window.__ = {
 }
 
 const ctx = setupCanvas()
-const game = new Game({}, ctx)
+const game = new Game(ctx)
 
 window.__.game = game // debug
 
