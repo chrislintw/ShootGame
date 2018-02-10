@@ -1,14 +1,18 @@
 import { zone } from './utils/canvas'
+import { simpleID } from './utils/random'
 
 class Player {
   constructor ({
+    id,
     name = 'GGininder',
+    color = Player.color,
     x = 0,
     y = 0,
     width = Player.size.width,
     height = Player.size.height,
     step = Player.step
   }) {
+    this.id = id || simpleID()
     this.name = name
     this.x = x
     this.y = y
@@ -19,7 +23,7 @@ class Player {
 
   draw (ctx) {
     zone(ctx, () => {
-      ctx.fillStyle = '#facf15'
+      ctx.fillStyle = this.color
       ctx.strokeStyle = '#333'
       ctx.lineWidth = 4
 
@@ -49,7 +53,8 @@ Object.assign(Player, {
     width: 20,
     height: 20
   },
-  step: 20
+  step: 20,
+  color: '#facf15'
 })
 
 export default Player
