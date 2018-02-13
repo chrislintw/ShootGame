@@ -1,13 +1,13 @@
+/* global io */
+
 import fromEvent from 'xstream/extra/fromEvent'
 import Oa from '@annotis/o-a'
-import _ from 'lodash'
 
 import Rect from './shapes/rect'
 import { getSize } from './utils/canvas'
 import Enemy from './enemy'
 import Player from './player'
 import Bullet from './bullet'
-import * as socketFixture from './fixtures/socket'
 
 const KEY_MOVING = {
   a: { x: -1, y: 0 },
@@ -23,26 +23,47 @@ class Game {
     this.bullets = []
     this.players = new Oa('id')
     this.size = getSize(ctx)
-    this.playerMe = null
 
     this.movePlayer = this.movePlayer.bind(this)
     this.createBullet = this.createBullet.bind(this)
     this.createPlayer = this.createPlayer.bind(this)
-    this.changePlayer = this.changePlayer.bind(this)
+
+    this.socketID = null
+    this.socket = io('/player')
+    this.listenSocketEvents()
 
     this.createGameArea()
     this.createEnemy()
-    this.createPlayer()
     this.bindEvents()
   }
 
+  listenSocketEvents () {
+    this.socket.on('connect', () => {
+      this.socketID = this.socket.id
+
+      this.socket.emit('fetch-players', ({ players }) => {
+        this.resetPlayers(players)
+      })
+
+      this.socket.on('player-added', (player) => {
+        this.createPlayer(player)
+      })
+
+      this.socket.on('moving', (player) => {
+        this.updatePlayer(player)
+      })
+
+      this.socket.on('leaved', (player) => {
+        this.removePlayer(player)
+      })
+
+      this.socket.on('sync-state', ({ players }) => {
+        this.resetPlayers(players)
+      })
+    })
+  }
+
   bindEvents () {
-    fromEvent(document.getElementById('create-player'), 'click')
-      .addListener({ next: this.createPlayer })
-
-    fromEvent(document.getElementById('change-player'), 'click')
-      .addListener({ next: this.changePlayer })
-
     fromEvent(document, 'keydown')
       .map(event => KEY_MOVING[event.key] || { x: 0, y: 0 })
       .addListener({ next: this.movePlayer })
@@ -60,7 +81,7 @@ class Game {
 
   draw () {
     this.enemy.draw(this.ctx)
-    this.players.forEach(player => player.draw(this.ctx, this.playerMe))
+    this.players.forEach(player => player.draw(this.ctx, this.socketID))
     this.bullets.map(bullet => bullet.draw(this.ctx))
   }
 
@@ -74,8 +95,16 @@ class Game {
     this.enemy = new Enemy({ x: canvasWidth / 2, y: canvasHeight / 2 })
   }
 
-  createPlayer () {
-    this.players.push(new Player(socketFixture.generatePlayerData()))
+  createPlayer (player) {
+    this.players.push(new Player(player))
+  }
+
+  resetPlayers (players) {
+    this.players = new Oa('id', players.map(p => new Player(p)))
+  }
+
+  removePlayer ({ id }) {
+    this.players.removeKey(id)
   }
 
   createBullet (event) {
@@ -86,16 +115,15 @@ class Game {
     }))
   }
 
-  changePlayer () {
-    this.playerMe = this.players.atIndex(_.random(0, this.players.length - 1)).id
+  movePlayer ({ x, y }) {
+    const me = this.players.atKey(this.socketID)
+    me.move({ unitX: x, unitY: y })
+    this.socket.emit('moving', { x: me.x, y: me.y })
   }
 
-  movePlayer ({ x, y }) {
-    if (this.playerMe) {
-      this.players.atKey(this.playerMe).move({ unitX: x, unitY: y })
-    } else {
-      this.players.atIndex(0).move({ unitX: x, unitY: y })
-    }
+  updatePlayer ({ id, x, y }) {
+    const player = this.players.atKey(id)
+    player.set({ x, y })
   }
 
   updateBullets (delta) {
